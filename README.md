@@ -8,3 +8,7 @@ RCDroid is an android app, allowing the phone to be used as the brains of a remo
 - Gyroscope (rotation)
 - GPS (location, speed, bearing)
 - Battery (level, voltage, temperature)
+
+## Screenshots
+
+[![Current progress](http://upit.cc/t/069deb4e.png)](http://upit.cc/i/069deb4e.png)
