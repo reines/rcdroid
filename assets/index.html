@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>RCDroid</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <!-- jquery -->
+        <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+        <script type="text/javascript" src="js/jquery.json-2.4.min.js"></script>
+
+        <!-- bootstrap -->
+        <link rel="stylesheet" media="screen" type="text/css" href="css/bootstrap.min.css" />
+        <script type="text/javascript" src="js/bootstrap.min.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <script type="text/javascript" src="js/control.js"></script>
+    </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <!-- navbar -->
+                    <a class="brand" href="#">RCDroid</a>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="container-fluid">
+                <div class="row-fluid">
+                    <div class="span3">
+                        <!-- sidebar -->
+                        <ul id="sensors">
+                            <li><strong>Battery:</strong> <span class="battery-level-value unknown"></span></li>
+                            <li><strong>Voltage:</strong> <span class="battery-voltage-value unknown"></span></li>
+                            <li><strong>Temperature:</strong> <span class="battery-temperature-value unknown"></span></li>
+
+                            <li><strong>Location:</strong> <span class="location-position-value unknown"></span></li>
+                            <li><strong>Speed:</strong> <span class="location-speed-value unknown"></span></li>
+                            <li><strong>Bearing:</strong> <span class="location-bearing-value unknown"></span></li>
+
+                            <li><strong>Acceleration:</strong> <span class="acceleration-value unknown"></span></li>
+
+                            <li><strong>Rotation:</strong> <span class="rotation-value unknown"></span></li>
+
+                            <li><strong>Timestamp:</strong> <span class="timestamp-value unknown"></span></li>
+                        </ul>
+                    </div>
+                    <div class="span9">
+                        <!-- body -->
+                        <p>Hello car!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
