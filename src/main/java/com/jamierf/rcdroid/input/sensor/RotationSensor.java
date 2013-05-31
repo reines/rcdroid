@@ -29,10 +29,9 @@ public class RotationSensor extends AbstractSensor<Coordinate> {
                 synchronized (RotationSensor.this) {
                     // TODO: Set the value
                     currentValue.set(x, y, z);
-                    setValueChanged();
-
-                    timestamp = event.timestamp;
                     accuracy = event.accuracy;
+
+                    setValueChanged(event.timestamp);
                 }
             }
 

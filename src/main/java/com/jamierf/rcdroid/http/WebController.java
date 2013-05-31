@@ -8,6 +8,7 @@ import com.google.common.base.Optional;
 import com.jamierf.rcdroid.MainActivity;
 import com.jamierf.rcdroid.http.api.*;
 import com.jamierf.rcdroid.http.handler.AssetResourceHandler;
+import com.jamierf.rcdroid.http.handler.ConfigHttpHandler;
 import com.jamierf.rcdroid.http.handler.ControlProtocolHandler;
 import com.jamierf.rcdroid.input.SensorController;
 import com.jamierf.rcdroid.input.api.BatteryStatus;
@@ -30,11 +31,12 @@ public class WebController extends ControlProtocolHandler implements SensorListe
 
     private WebServer server;
 
-    public WebController(final Context context, SensorController sensors, ServoController servo) {
+    public WebController(final Context context, final SensorController sensors, final ServoController servo) {
         this.sensors = sensors;
         this.servo = servo;
 
         final AssetManager assets = context.getAssets();
+        final Config config = new Config(); // TODO: Load from somewhere?
 
         new Thread(new Runnable() {
             @Override
@@ -42,6 +44,7 @@ public class WebController extends ControlProtocolHandler implements SensorListe
                 try {
                     server = WebServers.createWebServer(WebController.PORT)
                             .add("/control", WebController.this)
+                            .add("/config", new ConfigHttpHandler(config))
                             .add(new AssetResourceHandler(assets))
                             .start().get();
 

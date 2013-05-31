@@ -33,8 +33,10 @@ public abstract class AbstractSensor<T> {
         }
     }
 
-    protected void setValueChanged() {
+    protected void setValueChanged(long timestamp) {
         synchronized (listeners) {
+            this.timestamp = timestamp;
+
             for (SensorListener listener : listeners) {
                 listener.onValueChanged(this);
             }
@@ -42,13 +44,17 @@ public abstract class AbstractSensor<T> {
     }
 
     public void forceUpdate() {
-        this.setValueChanged();
+        this.setValueChanged(System.currentTimeMillis());
     }
 
     public abstract Optional<T> getValue();
 
     public synchronized long getTimestamp() {
         return timestamp;
+    }
+
+    public synchronized int getAccuracy() {
+        return accuracy;
     }
 
     public synchronized boolean isHighAccuracy() {

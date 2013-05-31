@@ -23,9 +23,7 @@ public class LocationSensor extends AbstractSensor<Location> {
             @Override
             public void onLocationChanged(Location location) {
                 LocationSensor.this.location = location;
-                setValueChanged();
-
-                timestamp = location.getTime();
+                setValueChanged(location.getTime());
             }
 
             @Override

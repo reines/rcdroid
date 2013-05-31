@@ -9,7 +9,7 @@ public class LocationUpdatedPacket extends Packet {
         super(Type.LOCATION_UPDATED, ImmutableMap.<String, Object>of(
                 "altitude", location.getAltitude(),
                 "bearing", location.getBearing(),
-                "bearing", location.getSpeed(),
+                "speed", location.getSpeed(),
                 "latitude", location.getLatitude(),
                 "longitude", location.getLongitude()
         ), timestamp);

@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 public class BatterySensor extends AbstractSensor<BatteryStatus> implements Runnable {
 
-    private static final long POLLING_FREQUENCY = 60; // seconds
+    private static final long POLLING_FREQUENCY = 5; // minutes
 
     private final Context context;
     private final ScheduledExecutorService executor;
@@ -25,7 +25,7 @@ public class BatterySensor extends AbstractSensor<BatteryStatus> implements Runn
         this.context = context;
 
         executor = Executors.newSingleThreadScheduledExecutor();
-        executor.scheduleWithFixedDelay(this, 0, POLLING_FREQUENCY, TimeUnit.SECONDS);
+        executor.scheduleWithFixedDelay(this, 0, POLLING_FREQUENCY, TimeUnit.MINUTES);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class BatterySensor extends AbstractSensor<BatteryStatus> implements Runn
         final float scale = battery.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
 
         this.battery = new BatteryStatus(charging, voltage / 1000F, temperature / 10F, level / scale);
-        this.setValueChanged();
+        this.setValueChanged(System.currentTimeMillis());
     }
 
     @Override

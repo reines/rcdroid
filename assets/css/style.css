@@ -17,3 +17,15 @@ body {
 #sensors .unknown:after {
     content: "unknown";
 }
+
+#car-canvas {
+    border: 1px solid black;
+    width: 200px;
+    height: 200px;
+}
+
+#map-canvas {
+    border: 1px solid black;
+    width: 600px;
+    height: 600px;
+}

@@ -7,6 +7,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.util.Log;
+import com.jamierf.rcdroid.http.Config;
 import com.jamierf.rcdroid.http.WebController;
 import com.jamierf.rcdroid.input.SensorController;
 import com.jamierf.rcdroid.output.ServoController;

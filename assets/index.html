@@ -7,12 +7,24 @@
         <!-- jquery -->
         <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
         <script type="text/javascript" src="js/jquery.json-2.4.min.js"></script>
+        <script type="text/javascript" src="js/jquery.ui.map-3.0.rc1.min.js"></script>
+        <script type="text/javascript" src="js/jquery.ui.cube-0.1.js"></script>
 
         <!-- bootstrap -->
-        <link rel="stylesheet" media="screen" type="text/css" href="css/bootstrap.min.css" />
-        <script type="text/javascript" src="js/bootstrap.min.js"></script>
+        <link rel="stylesheet" media="screen" type="text/css" href="css/bootstrap-2.3.1.min.css" />
+        <script type="text/javascript" src="js/bootstrap-2.3.1.min.js"></script>
+
+        <!-- underscore -->
+        <script type="text/javascript" src="js/underscore-1.4.4.min.js"></script>
+
+        <!-- backbone -->
+        <script type="text/javascript" src="js/backbone-0.9.10.min.js"></script>
+
+        <!-- google maps -->
+        <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 
         <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <script type="text/javascript" src="js/car.js"></script>
         <script type="text/javascript" src="js/control.js"></script>
     </head>
     <body>
@@ -30,24 +42,31 @@
                     <div class="span3">
                         <!-- sidebar -->
                         <ul id="sensors">
+                            <!-- battery -->
                             <li><strong>Battery:</strong> <span class="battery-level-value unknown"></span></li>
                             <li><strong>Voltage:</strong> <span class="battery-voltage-value unknown"></span></li>
                             <li><strong>Temperature:</strong> <span class="battery-temperature-value unknown"></span></li>
 
+                            <!-- gps -->
                             <li><strong>Location:</strong> <span class="location-position-value unknown"></span></li>
                             <li><strong>Speed:</strong> <span class="location-speed-value unknown"></span></li>
                             <li><strong>Bearing:</strong> <span class="location-bearing-value unknown"></span></li>
 
+                            <!-- acceleration -->
                             <li><strong>Acceleration:</strong> <span class="acceleration-value unknown"></span></li>
 
+                            <!-- rotation -->
                             <li><strong>Rotation:</strong> <span class="rotation-value unknown"></span></li>
 
+                            <!-- time -->
                             <li><strong>Timestamp:</strong> <span class="timestamp-value unknown"></span></li>
                         </ul>
+
+                        <canvas id="car-canvas"></canvas>
                     </div>
                     <div class="span9">
                         <!-- body -->
-                        <p>Hello car!</p>
+                        <div id="map-canvas"></div>
                     </div>
                 </div>
             </div>

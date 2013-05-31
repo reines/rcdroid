@@ -36,10 +36,9 @@ public class AccelerationSensor extends AbstractSensor<Coordinate> {
 
                     // Set the change to the current minus the last
                     changeValue.set(x - lastValue.getX(), y - lastValue.getY(), z - lastValue.getZ());
-                    setValueChanged();
-
-                    timestamp = event.timestamp;
                     accuracy = event.accuracy;
+
+                    setValueChanged(event.timestamp);
                 }
             }
 
