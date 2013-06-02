@@ -58,7 +58,6 @@
                     <sdk>
                         <path>${env.ANDROID_HOME}</path>
                         <platform>${android.platform}</platform>
-
                     </sdk>
                     <androidManifestFile>${project.basedir}/AndroidManifest.xml</androidManifestFile>
                     <resourceDirectory>${project.basedir}/res</resourceDirectory>
