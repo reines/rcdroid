@@ -8,6 +8,3 @@ before_install:
  - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/build-tools/17.0.0
  - echo 'y' > android-sdk-linux.stdin
  - android update sdk --all --no-ui --force --filter tools,platform-tools,build-tools-17.0.0,android-14 < android-sdk-linux.stdin
- - ls $ANDROID_HOME/tools/
- - ls $ANDROID_HOME/platform-tools/
- - ls $ANDROID_HOME/build-tools/17.0.0/
