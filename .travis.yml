@@ -2,9 +2,10 @@ language: java
 jdk:
   - oraclejdk7
 before_install:
+ - cd /tmp/
  - wget http://dl.google.com/android/android-sdk_r22.0.1-linux.tgz
  - tar -zxf android-sdk_r22.0.1-linux.tgz
- - echo 'y' > /tmp/android-sdk-linux.stdin
  - export ANDROID_HOME=`pwd`/android-sdk-linux
  - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
- - android update sdk --filter 1,2,9 --no-ui --force < /tmp/android-sdk-linux.stdin
+ - echo 'y' > android-sdk-linux.stdin
+ - android update sdk --filter platform-tools,android-14 --no-ui --force < android-sdk-linux.stdin
