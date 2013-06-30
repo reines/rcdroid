@@ -16,6 +16,7 @@
         <webbit.version>0.4.14</webbit.version>
         <jackson.version>1.9.12</jackson.version>
         <jsr305.version>2.0.1</jsr305.version>
+        <maestro.version>1.0-SNAPSHOT</maestro.version>
     </properties>
 
     <dependencies>
@@ -44,6 +45,11 @@
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
             <version>${jsr305.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jamierf.maestro</groupId>
+            <artifactId>maestro-android</artifactId>
+            <version>${maestro.version}</version>
         </dependency>
     </dependencies>
 
