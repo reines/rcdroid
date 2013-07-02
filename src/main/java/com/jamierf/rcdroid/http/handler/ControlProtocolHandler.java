@@ -2,7 +2,7 @@ package com.jamierf.rcdroid.http.handler;
 
 import android.util.Log;
 import com.google.common.collect.Lists;
-import com.jamierf.rcdroid.MainActivity;
+import com.jamierf.rcdroid.CarActivity;
 import com.jamierf.rcdroid.http.api.Packet;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.webbitserver.BaseWebSocketHandler;
@@ -29,7 +29,7 @@ public abstract class ControlProtocolHandler extends BaseWebSocketHandler {
             if (clients.isEmpty())
                 return;
 
-            Log.v(MainActivity.TAG, "Sending " + packet);
+            Log.v(CarActivity.TAG, "Sending " + packet);
 
             for (WebSocketConnection client : clients)
                 this.send(client, packet);
@@ -42,7 +42,7 @@ public abstract class ControlProtocolHandler extends BaseWebSocketHandler {
             client.send(json);
         }
         catch (Exception e) {
-            Log.w(MainActivity.TAG, "Failed sending packet: " + packet, e);
+            Log.w(CarActivity.TAG, "Failed sending packet: " + packet, e);
         }
     }
 
@@ -69,7 +69,7 @@ public abstract class ControlProtocolHandler extends BaseWebSocketHandler {
             this.onPacket(client, packet);
         }
         catch (Exception e) {
-            Log.w(MainActivity.TAG, "Failed handling message: " + json, e);
+            Log.w(CarActivity.TAG, "Failed handling message: " + json, e);
         }
     }
 }

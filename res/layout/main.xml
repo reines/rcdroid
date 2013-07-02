@@ -4,16 +4,4 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
-
-    <EditText
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="0"
-            android:id="@+id/editText" android:layout_gravity="center" android:singleLine="true"
-            android:inputType="number" android:numeric="integer"/>
-    <Button
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Test"
-            android:id="@+id/button" android:layout_gravity="center"/>
 </LinearLayout>

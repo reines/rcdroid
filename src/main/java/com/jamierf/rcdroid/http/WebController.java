@@ -1,131 +1,82 @@
 package com.jamierf.rcdroid.http;
 
-import android.content.Context;
 import android.content.res.AssetManager;
-import android.location.Location;
 import android.util.Log;
-import com.google.common.base.Optional;
-import com.jamierf.rcdroid.MainActivity;
-import com.jamierf.rcdroid.http.api.*;
+import com.google.common.collect.Lists;
+import com.jamierf.rcdroid.CarActivity;
+import com.jamierf.rcdroid.http.api.Packet;
 import com.jamierf.rcdroid.http.handler.AssetResourceHandler;
 import com.jamierf.rcdroid.http.handler.ConfigHttpHandler;
 import com.jamierf.rcdroid.http.handler.ControlProtocolHandler;
-import com.jamierf.rcdroid.input.SensorController;
-import com.jamierf.rcdroid.input.api.BatteryStatus;
-import com.jamierf.rcdroid.input.api.Coordinate;
-import com.jamierf.rcdroid.input.sensor.*;
-import com.jamierf.rcdroid.input.sensor.listener.SensorListener;
-import com.jamierf.rcdroid.output.ServoController;
 import org.webbitserver.WebServer;
 import org.webbitserver.WebServers;
 import org.webbitserver.WebSocketConnection;
 
-import java.io.IOException;
+import java.util.Collection;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class WebController extends ControlProtocolHandler implements SensorListener {
+public class WebController extends ControlProtocolHandler {
 
     private static final int PORT = 8080;
 
-    private final SensorController sensors;
-    private final ServoController servo;
+    private final ExecutorService executor;
+    private final WebServer server;
+    private final Collection<ClientListener> listeners;
 
-    private WebServer server;
-
-    public WebController(final Context context, final SensorController sensors, final ServoController servo) {
-        this.sensors = sensors;
-        this.servo = servo;
-
-        final AssetManager assets = context.getAssets();
+    public WebController(final AssetManager assets) throws ExecutionException, InterruptedException {
         final Config config = new Config(); // TODO: Load from somewhere?
 
-        new Thread(new Runnable() {
+        executor = Executors.newSingleThreadExecutor();
+        server = executor.submit(new Callable<WebServer>() {
             @Override
-            public void run() {
-                try {
-                    server = WebServers.createWebServer(WebController.PORT)
-                            .add("/control", WebController.this)
-                            .add("/config", new ConfigHttpHandler(config))
-                            .add(new AssetResourceHandler(assets))
-                            .start().get();
-
-                    Log.i(MainActivity.TAG, "Started websocket server at: " + server.getUri());
-                } catch (Exception e) {
-                    Log.e(MainActivity.TAG, "Failed to start websocket server", e);
-                }
+            public WebServer call() throws Exception {
+                return WebServers.createWebServer(WebController.PORT)
+                        .add("/control", WebController.this)
+                        .add("/config", new ConfigHttpHandler(config))
+                        .add(new AssetResourceHandler(assets))
+                        .start().get();
             }
-        }).start();
+        }).get();
 
-        // Register the web controller to receive sensor updates
-        sensors.addListener(this);
+        listeners = Lists.newLinkedList();
+    }
+
+    public void addListener(ClientListener listener) {
+        synchronized (listeners) {
+            listeners.add(listener);
+        }
+    }
+
+    public void removeListener(ClientListener listener) {
+        synchronized (listeners) {
+            listeners.remove(listener);
+        }
     }
 
     public void stop() {
-        if (server == null)
-            return;
-
         server.stop();
-        server = null;
     }
 
     @Override
-    protected void onConnect(WebSocketConnection client) {
-//        final SocketAddress remoteAddress = client.httpRequest().remoteAddress();
-        Log.i(MainActivity.TAG, "Connected to client: " + client);
+    protected void onConnect(final WebSocketConnection client) {
+        Log.i(CarActivity.TAG, "Connected to client: " + client);
 
-        sensors.forceUpdate();
+        synchronized (listeners) {
+            for (ClientListener listener : listeners) {
+                listener.onClientConnect(client);
+            }
+        }
     }
 
     @Override
     protected void onPacket(WebSocketConnection client, Packet packet) {
-        // TODO: Handle this packet
-    }
-
-    @Override
-    public void onValueChanged(AbstractSensor sensor) {
-        try {
-            if (sensor instanceof AccelerationSensor) {
-                final AccelerationSensor acceleration = (AccelerationSensor) sensor;
-                this.onAccelerationValueChanged(acceleration.getValue(), acceleration.getTimestamp());
-            }
-            else if (sensor instanceof LocationSensor) {
-                final LocationSensor location = (LocationSensor) sensor;
-                this.onLocationValueChanged(location.getValue(), location.getTimestamp());
-            }
-            else if (sensor instanceof RotationSensor) {
-                final RotationSensor rotation = (RotationSensor) sensor;
-                this.onRotationValueChanged(rotation.getValue(), rotation.getTimestamp());
-            }
-            else if (sensor instanceof BatterySensor) {
-                final BatterySensor battery = (BatterySensor) sensor;
-                this.onBatteryValueChanged(battery.getValue(), battery.getTimestamp());
+        synchronized (listeners) {
+            for (ClientListener listener : listeners) {
+                listener.onPacket(client, packet);
             }
         }
-        catch (IOException e) {
-            Log.e(MainActivity.TAG, "Failed to send sensor update", e);
-        }
-    }
-
-    private void onAccelerationValueChanged(Optional<Coordinate> value, long timestamp) throws IOException {
-        // If there is a value then send it
-        if (value.isPresent())
-            super.send(new AccelerationUpdatedPacket(value.get(), timestamp));
-    }
-
-    private void onLocationValueChanged(Optional<Location> value, long timestamp) throws IOException {
-        // If there is a value then send it
-        if (value.isPresent())
-            super.send(new LocationUpdatedPacket(value.get(), timestamp));
-    }
-
-    private void onRotationValueChanged(Optional<Coordinate> value, long timestamp) throws IOException {
-        // If there is a value then send it
-        if (value.isPresent())
-            super.send(new RotationUpdatedPacket(value.get(), timestamp));
-    }
-
-    private void onBatteryValueChanged(Optional<BatteryStatus> value, long timestamp) throws IOException {
-        // If there is a value then send it
-        if (value.isPresent())
-            super.send(new BatteryUpdatedPacket(value.get(), timestamp));
     }
 }

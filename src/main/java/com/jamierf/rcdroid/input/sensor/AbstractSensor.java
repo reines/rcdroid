@@ -38,7 +38,7 @@ public abstract class AbstractSensor<T> {
             this.timestamp = timestamp;
 
             for (SensorListener listener : listeners) {
-                listener.onValueChanged(this);
+                listener.onSensorChanged(this);
             }
         }
     }

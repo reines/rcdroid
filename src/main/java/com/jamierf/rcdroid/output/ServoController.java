@@ -4,26 +4,37 @@ import android.content.Context;
 import com.jamierf.maestro.MaestroServoController;
 import com.jamierf.maestro.api.Product;
 import com.jamierf.maestro.binding.AndroidDriverBinding;
+import com.jamierf.maestro.binding.AsyncBindingListener;
 import com.jamierf.maestro.settings.Settings;
 
 public class ServoController {
 
-    private final MaestroServoController servos;
+    private MaestroServoController servos;
 
     public ServoController(final Context context) {
         final Settings settings = Settings.builder()
                 .setNeverSuspend(true)
                 .build();
 
-        final AndroidDriverBinding driver = AndroidDriverBinding.bindToDevice(context, Product.MICRO6);
-        servos = new MaestroServoController(driver, settings);
+        AndroidDriverBinding.bindToDevice(context, Product.MICRO6, new AsyncBindingListener<AndroidDriverBinding>() {
+            @Override
+            public void onBind(int vendorId, int productId, AndroidDriverBinding driver) {
+                servos = new MaestroServoController(driver, settings);
+                servos.setTarget(0, 1000 * 4); // Test
+            }
+
+            @Override
+            public void onException(Throwable throwable) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+        });
     }
 
-    public void setTarget(int servo, int value) {
-        servos.setTarget(servo, value);
-    }
+    public synchronized void stop() {
+        if (servos == null)
+            return;
 
-    public void stop() {
         servos.close();
+        servos = null;
     }
 }

@@ -7,63 +7,67 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.util.Log;
-import com.jamierf.rcdroid.http.Config;
+import com.jamierf.maestro.MaestroServoController;
+import com.jamierf.maestro.api.Product;
+import com.jamierf.maestro.binding.AndroidDriverBinding;
+import com.jamierf.maestro.binding.AsyncBindingListener;
+import com.jamierf.maestro.settings.Settings;
 import com.jamierf.rcdroid.http.WebController;
 import com.jamierf.rcdroid.input.SensorController;
-import com.jamierf.rcdroid.output.ServoController;
+import com.jamierf.rcdroid.logic.CarEngine;
 
 public class CarService extends Service {
 
     private static final int NOTIFICATION_ID = R.string.app_name;
 
-    class CarServiceBinder extends Binder {
-        CarService getService() {
-            return CarService.this;
-        }
-    }
-
     private NotificationManager notificationManager;
-
-    private ServoController servo;
-    private SensorController sensors;
-    private WebController web;
+    private CarEngine engine;
 
     @Override
-    public CarServiceBinder onBind(Intent intent) {
-        return new CarServiceBinder();
+    public Binder onBind(Intent intent) {
+        return new Binder();
     }
 
     @Override
     public void onCreate() {
-        Log.i(MainActivity.TAG, "Created car service");
+        Log.i(CarActivity.TAG, "Created car service");
 
-        // Set a notification in the tray
-        notificationManager = (NotificationManager) super.getSystemService(Service.NOTIFICATION_SERVICE);
-        this.setNotification(android.R.drawable.sym_def_app_icon, R.string.app_name);
+        notificationManager = (NotificationManager) this.getSystemService(Service.NOTIFICATION_SERVICE);
 
         // Connect to the servo controller
-        servo = new ServoController(this);
+        final Settings settings = Settings.builder()
+                .setNeverSuspend(true)
+                .build();
 
-        // Connect to the sensors
-        sensors = new SensorController(this);
+        AndroidDriverBinding.bindToDevice(this, Product.MICRO6, new AsyncBindingListener<AndroidDriverBinding>() {
+            @Override
+            public void onBind(int vendorId, int productId, AndroidDriverBinding driver) {
+                try {
+                    final SensorController sensors = new SensorController(CarService.this);
+                    final MaestroServoController servos = new MaestroServoController(driver, settings);
+                    final WebController web = new WebController(getAssets());
 
-        // Create and start a web server for user input
-        web = new WebController(this, sensors, servo);
+                    engine = new CarEngine(CarService.this, sensors, servos, web);
+                } catch (Exception e) {
+                    this.onException(e);
+                }
+            }
+
+            @Override
+            public void onException(Throwable throwable) {
+                throwable.printStackTrace(); // TODO
+            }
+        });
     }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        return Service.START_STICKY;
-    }
-
-    private void setNotification(int iconId, int textId) {
-        final CharSequence text = super.getText(textId);
+    public void setNotification(int iconId, int textId) {
+        final CharSequence text = this.getText(textId);
 
         // Create a notification with icon and text
         final Notification notification = new Notification(iconId, text, System.currentTimeMillis());
 
         // Set what to do when it's clicked
-        final PendingIntent intent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
+        final PendingIntent intent = PendingIntent.getActivity(this, 0, new Intent(this, CarActivity.class), 0);
         notification.setLatestEventInfo(this, text, text, intent);
 
         // Send the notification
@@ -71,19 +75,16 @@ public class CarService extends Service {
     }
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return Service.START_STICKY;
+    }
+
+    @Override
     public void onDestroy() {
-        // Stop the servo controller
-        if (servo != null) {
-            servo.stop();
-            servo = null;
-        }
-
-        // TODO: Stop the sensors
-
         // Stop the web server
-        if (web != null) {
-            web.stop();
-            web = null;
+        if (engine != null) {
+            engine.stop();
+            engine = null;
         }
     }
 }
