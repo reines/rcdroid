@@ -15,4 +15,4 @@ Still under development...
 
 ## Screenshots
 
-[![Current progress](https://raw.github.com/reines/rcdroid/master/docs/dashboard.png)
+![Current progress](https://raw.github.com/reines/rcdroid/master/docs/dashboard.png)
