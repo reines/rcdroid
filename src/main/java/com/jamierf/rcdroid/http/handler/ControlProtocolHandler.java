@@ -1,7 +1,7 @@
 package com.jamierf.rcdroid.http.handler;
 
 import com.google.common.collect.Lists;
-import com.jamierf.rcdroid.http.api.Packet;
+import com.jamierf.rcdroid.http.Packet;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ public abstract class ControlProtocolHandler extends BaseWebSocketHandler {
         }
     }
 
-    public void send(WebSocketConnection client, Packet packet) throws IOException {
+    private void send(WebSocketConnection client, Packet packet) throws IOException {
         try {
             final String json = JSON.writeValueAsString(packet);
             client.send(json);

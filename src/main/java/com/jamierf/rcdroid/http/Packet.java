@@ -1,8 +1,7 @@
-package com.jamierf.rcdroid.http.api;
+package com.jamierf.rcdroid.http;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
-import com.google.common.collect.Maps;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -11,7 +10,9 @@ import java.util.Map;
 public class Packet {
 
     public static enum Type {
-        LOCATION_UPDATED, ACCELERATION_UPDATED, ROTATION_UPDATED, BATTERY_UPDATED;
+        LOCATION_UPDATED, ACCELERATION_UPDATED, ROTATION_UPDATED, BATTERY_UPDATED, // sensors
+        SET_SPEED, SET_ROTATION, // servo control
+        PLAY_ALARM; // other control
     }
 
     @JsonProperty
@@ -34,12 +35,8 @@ public class Packet {
         return type;
     }
 
-    public Map<String, Object> getData() {
-        return data;
-    }
-
-    public Optional<Object> get(String key) {
-        return Optional.fromNullable(data.get(key));
+    public <T> Optional<T> get(String key) {
+        return Optional.fromNullable((T) data.get(key));
     }
 
     public long getTimestamp() {

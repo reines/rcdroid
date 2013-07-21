@@ -1,88 +1,70 @@
 package com.jamierf.rcdroid.logic;
 
-import android.location.Location;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.jamierf.maestro.MaestroServoController;
 import com.jamierf.rcdroid.CarService;
 import com.jamierf.rcdroid.R;
-import com.jamierf.rcdroid.http.ClientListener;
+import com.jamierf.rcdroid.config.CarConfig;
+import com.jamierf.rcdroid.http.Packet;
 import com.jamierf.rcdroid.http.WebController;
-import com.jamierf.rcdroid.http.api.*;
+import com.jamierf.rcdroid.http.listener.ClientListener;
+import com.jamierf.rcdroid.http.listener.PacketListener;
 import com.jamierf.rcdroid.input.SensorController;
-import com.jamierf.rcdroid.input.api.BatteryStatus;
-import com.jamierf.rcdroid.input.api.Coordinate;
-import com.jamierf.rcdroid.input.sensor.*;
-import com.jamierf.rcdroid.input.sensor.listener.SensorListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.jamierf.rcdroid.logic.packets.PlayAlarmRequestHandler;
+import com.jamierf.rcdroid.logic.packets.SetRotationRequestHandler;
+import com.jamierf.rcdroid.logic.packets.SetSpeedRequestHandler;
+import com.jamierf.rcdroid.logic.sensors.AccelerationSensorHandler;
+import com.jamierf.rcdroid.logic.sensors.BatterySensorHandler;
+import com.jamierf.rcdroid.logic.sensors.LocationSensorHandler;
+import com.jamierf.rcdroid.logic.sensors.RotationSensorHandler;
 import org.webbitserver.WebSocketConnection;
 
-import java.io.IOException;
+import java.util.Collection;
 
-public class CarEngine implements SensorListener, ClientListener {
-
-    private static final Logger LOG = LoggerFactory.getLogger(CarEngine.class);
+public class CarEngine implements ClientListener {
 
     private final CarService service;
-
     private final SensorController sensors;
     private final MaestroServoController servos;
     private final WebController web;
+    private final CarConfig config;
 
-    public CarEngine(CarService service, SensorController sensors, MaestroServoController servos, WebController web) {
+    private final Multimap<Packet.Type, PacketListener> packetListeners;
+
+    public CarEngine(CarService service, SensorController sensors, MaestroServoController servos, WebController web, CarConfig config) {
         this.service = service;
         this.sensors = sensors;
         this.servos = servos;
         this.web = web;
+        this.config = config;
 
-        sensors.addListener(this); // Register to receive sensor updates
-        web.addListener(this); // Register to receive client messages
+        // Register the sensor handlers
+        sensors.addAccelerationListener(new AccelerationSensorHandler(web));
+        sensors.addBatteryListener(new BatterySensorHandler(web));
+        sensors.addLocationListener(new LocationSensorHandler(web));
+        sensors.addRotationListener(new RotationSensorHandler(web));
+
+        packetListeners = HashMultimap.create();
+
+        // Register the packet handlers
+        packetListeners.put(Packet.Type.SET_SPEED, new SetSpeedRequestHandler(servos, config.getServos().getSpeedServoIndex()));
+        packetListeners.put(Packet.Type.SET_ROTATION, new SetRotationRequestHandler(servos, config.getServos().getRotationServoIndex()));
+        packetListeners.put(Packet.Type.PLAY_ALARM, new PlayAlarmRequestHandler(service));
+
+        // Register to receive client messages
+        web.addListener(this);
 
         // Set a notification in the tray
         service.setNotification(android.R.drawable.sym_def_app_icon, R.string.app_name);
-    }
-
-    @Override
-    public void onSensorChanged(AbstractSensor sensor) {
-        if (!sensor.getValue().isPresent())
-            return;
-
-        final long timestamp = sensor.getTimestamp();
-
-        try {
-            if (sensor instanceof AccelerationSensor) {
-                final AccelerationSensor acceleration = (AccelerationSensor) sensor;
-
-                final Coordinate value = acceleration.getValue().get();
-                web.send(new AccelerationUpdatedPacket(value, timestamp));
-            }
-            else if (sensor instanceof LocationSensor) {
-                final LocationSensor location = (LocationSensor) sensor;
-
-                final Location value = location.getValue().get();
-                web.send(new LocationUpdatedPacket(value, timestamp));
-            }
-            else if (sensor instanceof RotationSensor) {
-                final RotationSensor rotation = (RotationSensor) sensor;
-
-                final Coordinate value = rotation.getValue().get();
-                web.send(new RotationUpdatedPacket(value, timestamp));
-            }
-            else if (sensor instanceof BatterySensor) {
-                final BatterySensor battery = (BatterySensor) sensor;
-
-                final BatteryStatus value = battery.getValue().get();
-                web.send(new BatteryUpdatedPacket(value, timestamp));
-            }
-        }
-        catch (IOException e) {
-            LOG.warn("Failed to send sensor update", e);
-        }
     }
 
     public void stop() {
         sensors.close();
         servos.close();
         web.stop();
+
+        service.removeNotification();
     }
 
     @Override
@@ -92,6 +74,9 @@ public class CarEngine implements SensorListener, ClientListener {
 
     @Override
     public void onPacket(WebSocketConnection client, Packet packet) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        final Collection<PacketListener> listeners = packetListeners.get(packet.getType());
+        for (PacketListener listener : listeners) {
+            listener.onPacket(packet);
+        }
     }
 }

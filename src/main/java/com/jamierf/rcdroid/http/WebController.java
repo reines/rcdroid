@@ -2,10 +2,11 @@ package com.jamierf.rcdroid.http;
 
 import android.content.res.AssetManager;
 import com.google.common.collect.Lists;
-import com.jamierf.rcdroid.http.api.Packet;
+import com.jamierf.rcdroid.config.WebUIConfig;
 import com.jamierf.rcdroid.http.handler.AssetResourceHandler;
-import com.jamierf.rcdroid.http.handler.ConfigHttpHandler;
 import com.jamierf.rcdroid.http.handler.ControlProtocolHandler;
+import com.jamierf.rcdroid.http.handler.JsonPOJOHandler;
+import com.jamierf.rcdroid.http.listener.ClientListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.webbitserver.WebServer;
@@ -20,23 +21,20 @@ import java.util.concurrent.Executors;
 
 public class WebController extends ControlProtocolHandler {
 
-    private static final int PORT = 8080;
     private static final Logger LOG = LoggerFactory.getLogger(WebController.class);
 
     private final ExecutorService executor;
     private final WebServer server;
     private final Collection<ClientListener> listeners;
 
-    public WebController(final AssetManager assets) throws ExecutionException, InterruptedException {
-        final Config config = new Config(); // TODO: Load from somewhere?
-
+    public WebController(final AssetManager assets, final WebUIConfig config) throws ExecutionException, InterruptedException {
         executor = Executors.newSingleThreadExecutor();
         server = executor.submit(new Callable<WebServer>() {
             @Override
             public WebServer call() throws Exception {
-                return WebServers.createWebServer(WebController.PORT)
+                return WebServers.createWebServer(config.getPort())
                         .add("/control", WebController.this)
-                        .add("/config", new ConfigHttpHandler(config))
+                        .add("/config", new JsonPOJOHandler(config))
                         .add(new AssetResourceHandler(assets))
                         .start().get();
             }

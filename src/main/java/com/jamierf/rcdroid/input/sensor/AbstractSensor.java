@@ -9,7 +9,7 @@ import java.util.Collection;
 
 public abstract class AbstractSensor<T> {
 
-    private final Collection<SensorListener> listeners;
+    private final Collection<SensorListener<? extends AbstractSensor<T>>> listeners;
 
     protected long timestamp;
     protected int accuracy;
@@ -21,13 +21,13 @@ public abstract class AbstractSensor<T> {
         accuracy = 0;
     }
 
-    public void addListener(SensorListener listener) {
+    public void addListener(SensorListener<? extends AbstractSensor<T>> listener) {
         synchronized (listeners) {
             listeners.add(listener);
         }
     }
 
-    public void removeListener(SensorListener listener) {
+    public void removeListener(SensorListener<? extends AbstractSensor<T>> listener) {
         synchronized (listeners) {
             listeners.remove(listener);
         }

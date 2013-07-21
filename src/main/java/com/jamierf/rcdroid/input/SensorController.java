@@ -26,10 +26,19 @@ public class SensorController {
         battery = new BatterySensor(context);
     }
 
-    public void addListener(SensorListener listener) {
-        location.addListener(listener);
+    public void addAccelerationListener(SensorListener<AccelerationSensor> listener) {
         acceleration.addListener(listener);
+    }
+
+    public void addLocationListener(SensorListener<LocationSensor> listener) {
+        location.addListener(listener);
+    }
+
+    public void addRotationListener(SensorListener<RotationSensor> listener) {
         rotation.addListener(listener);
+    }
+
+    public void addBatteryListener(SensorListener<BatterySensor> listener) {
         battery.addListener(listener);
     }
 

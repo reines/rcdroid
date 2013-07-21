@@ -11,6 +11,7 @@ import com.jamierf.maestro.api.Product;
 import com.jamierf.maestro.binding.AndroidDriverBinding;
 import com.jamierf.maestro.binding.AsyncBindingListener;
 import com.jamierf.maestro.settings.Settings;
+import com.jamierf.rcdroid.config.CarConfig;
 import com.jamierf.rcdroid.http.WebController;
 import com.jamierf.rcdroid.input.SensorController;
 import com.jamierf.rcdroid.logic.CarEngine;
@@ -36,20 +37,24 @@ public class CarService extends Service {
 
         notificationManager = (NotificationManager) this.getSystemService(Service.NOTIFICATION_SERVICE);
 
-        // Connect to the servo controller
+        // TODO: config
+        final CarConfig config = new CarConfig();
+
         final Settings settings = Settings.builder()
                 .setNeverSuspend(true)
                 .build();
 
-        AndroidDriverBinding.bindToDevice(this, Product.MICRO6, new AsyncBindingListener<AndroidDriverBinding>() {
+        // Connect to the servo controller
+        final Product product = config.getServos().getProduct();
+        AndroidDriverBinding.bindToDevice(this, product, new AsyncBindingListener<AndroidDriverBinding>() {
             @Override
             public void onBind(int vendorId, int productId, AndroidDriverBinding driver) {
                 try {
                     final SensorController sensors = new SensorController(CarService.this);
                     final MaestroServoController servos = new MaestroServoController(driver, settings);
-                    final WebController web = new WebController(getAssets());
+                    final WebController web = new WebController(getAssets(), config.getWeb());
 
-                    engine = new CarEngine(CarService.this, sensors, servos, web);
+                    engine = new CarEngine(CarService.this, sensors, servos, web, config);
                 } catch (Exception e) {
                     this.onException(e);
                 }
@@ -57,7 +62,7 @@ public class CarService extends Service {
 
             @Override
             public void onException(Throwable throwable) {
-                throwable.printStackTrace(); // TODO
+                LOG.error("Unknown error occurred", throwable);
             }
         });
     }
@@ -76,6 +81,10 @@ public class CarService extends Service {
         notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
+    public void removeNotification() {
+        notificationManager.cancel(NOTIFICATION_ID);
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return Service.START_STICKY;
@@ -83,7 +92,7 @@ public class CarService extends Service {
 
     @Override
     public void onDestroy() {
-        // Stop the web server
+        // Stop the engine
         if (engine != null) {
             engine.stop();
             engine = null;
