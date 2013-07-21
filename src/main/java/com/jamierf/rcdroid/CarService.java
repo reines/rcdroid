@@ -6,7 +6,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
-import android.util.Log;
 import com.jamierf.maestro.MaestroServoController;
 import com.jamierf.maestro.api.Product;
 import com.jamierf.maestro.binding.AndroidDriverBinding;
@@ -15,9 +14,12 @@ import com.jamierf.maestro.settings.Settings;
 import com.jamierf.rcdroid.http.WebController;
 import com.jamierf.rcdroid.input.SensorController;
 import com.jamierf.rcdroid.logic.CarEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CarService extends Service {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CarService.class);
     private static final int NOTIFICATION_ID = R.string.app_name;
 
     private NotificationManager notificationManager;
@@ -30,7 +32,7 @@ public class CarService extends Service {
 
     @Override
     public void onCreate() {
-        Log.i(CarActivity.TAG, "Created car service");
+        LOG.info("Created car service");
 
         notificationManager = (NotificationManager) this.getSystemService(Service.NOTIFICATION_SERVICE);
 

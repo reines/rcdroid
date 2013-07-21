@@ -6,8 +6,6 @@ import android.os.Bundle;
 
 public class CarActivity extends Activity {
 
-    public static final String TAG = "RCDroid";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

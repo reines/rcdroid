@@ -1,10 +1,10 @@
 package com.jamierf.rcdroid.http.handler;
 
-import android.util.Log;
 import com.google.common.collect.Lists;
-import com.jamierf.rcdroid.CarActivity;
 import com.jamierf.rcdroid.http.api.Packet;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.webbitserver.BaseWebSocketHandler;
 import org.webbitserver.WebSocketConnection;
 
@@ -14,6 +14,7 @@ import java.util.Collection;
 public abstract class ControlProtocolHandler extends BaseWebSocketHandler {
 
     private static final ObjectMapper JSON = new ObjectMapper();
+    private static final Logger LOG = LoggerFactory.getLogger(ControlProtocolHandler.class);
 
     private final Collection<WebSocketConnection> clients;
 
@@ -29,7 +30,7 @@ public abstract class ControlProtocolHandler extends BaseWebSocketHandler {
             if (clients.isEmpty())
                 return;
 
-            Log.v(CarActivity.TAG, "Sending " + packet);
+            LOG.trace("Sending {}", packet);
 
             for (WebSocketConnection client : clients)
                 this.send(client, packet);
@@ -42,7 +43,7 @@ public abstract class ControlProtocolHandler extends BaseWebSocketHandler {
             client.send(json);
         }
         catch (Exception e) {
-            Log.w(CarActivity.TAG, "Failed sending packet: " + packet, e);
+            LOG.warn("Failed sending packet: " + packet, e);
         }
     }
 
@@ -69,7 +70,7 @@ public abstract class ControlProtocolHandler extends BaseWebSocketHandler {
             this.onPacket(client, packet);
         }
         catch (Exception e) {
-            Log.w(CarActivity.TAG, "Failed handling message: " + json, e);
+            LOG.warn("Failed handling message: " + json, e);
         }
     }
 }

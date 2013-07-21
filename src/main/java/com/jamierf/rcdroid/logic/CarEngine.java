@@ -1,9 +1,7 @@
 package com.jamierf.rcdroid.logic;
 
 import android.location.Location;
-import android.util.Log;
 import com.jamierf.maestro.MaestroServoController;
-import com.jamierf.rcdroid.CarActivity;
 import com.jamierf.rcdroid.CarService;
 import com.jamierf.rcdroid.R;
 import com.jamierf.rcdroid.http.ClientListener;
@@ -14,13 +12,18 @@ import com.jamierf.rcdroid.input.api.BatteryStatus;
 import com.jamierf.rcdroid.input.api.Coordinate;
 import com.jamierf.rcdroid.input.sensor.*;
 import com.jamierf.rcdroid.input.sensor.listener.SensorListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.webbitserver.WebSocketConnection;
 
 import java.io.IOException;
 
 public class CarEngine implements SensorListener, ClientListener {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CarEngine.class);
+
     private final CarService service;
+
     private final SensorController sensors;
     private final MaestroServoController servos;
     private final WebController web;
@@ -72,7 +75,7 @@ public class CarEngine implements SensorListener, ClientListener {
             }
         }
         catch (IOException e) {
-            Log.e(CarActivity.TAG, "Failed to send sensor update", e);
+            LOG.warn("Failed to send sensor update", e);
         }
     }
 

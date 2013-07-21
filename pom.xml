@@ -22,6 +22,7 @@
         <webbit.version>0.4.14</webbit.version>
         <jackson.version>1.9.12</jackson.version>
         <jsr305.version>2.0.1</jsr305.version>
+        <slf4j.version>1.7.5</slf4j.version>
         <maestro.version>1.0-SNAPSHOT</maestro.version>
     </properties>
 
@@ -51,6 +52,11 @@
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
             <version>${jsr305.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>com.jamierf.maestro</groupId>

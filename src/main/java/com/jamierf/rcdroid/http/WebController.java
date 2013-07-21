@@ -1,13 +1,13 @@
 package com.jamierf.rcdroid.http;
 
 import android.content.res.AssetManager;
-import android.util.Log;
 import com.google.common.collect.Lists;
-import com.jamierf.rcdroid.CarActivity;
 import com.jamierf.rcdroid.http.api.Packet;
 import com.jamierf.rcdroid.http.handler.AssetResourceHandler;
 import com.jamierf.rcdroid.http.handler.ConfigHttpHandler;
 import com.jamierf.rcdroid.http.handler.ControlProtocolHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.webbitserver.WebServer;
 import org.webbitserver.WebServers;
 import org.webbitserver.WebSocketConnection;
@@ -21,6 +21,7 @@ import java.util.concurrent.Executors;
 public class WebController extends ControlProtocolHandler {
 
     private static final int PORT = 8080;
+    private static final Logger LOG = LoggerFactory.getLogger(WebController.class);
 
     private final ExecutorService executor;
     private final WebServer server;
@@ -62,7 +63,7 @@ public class WebController extends ControlProtocolHandler {
 
     @Override
     protected void onConnect(final WebSocketConnection client) {
-        Log.i(CarActivity.TAG, "Connected to client: " + client);
+        LOG.info("Connected to client: {}", client);
 
         synchronized (listeners) {
             for (ClientListener listener : listeners) {
